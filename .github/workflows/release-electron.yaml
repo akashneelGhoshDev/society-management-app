@@ -1,0 +1,96 @@
+name: Build and Release Electron App
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build Electron Application
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: society-management-ui/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./society-management-ui
+        run: npm ci
+
+      - name: Get Version
+        id: version
+        working-directory: ./society-management-ui
+        run: |
+          $version = node -p "require('./package.json').version"
+          $sha = git rev-parse --short HEAD
+          $full = "$version+$env:GITHUB_RUN_NUMBER-$sha"
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "full_version=$full" >> $env:GITHUB_OUTPUT
+
+      - name: Verify Tag Matches package.json
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = "${{ steps.version.outputs.version }}"
+
+          if ($tag -ne "v$version") {
+            Write-Host "Tag: $tag"
+            Write-Host "Package Version: $version"
+            throw "Git tag and package.json version do not match."
+          }
+
+      - name: Generate environment.ts
+        working-directory: ./society-management-ui
+        run: |
+          New-Item -ItemType Directory -Force src/environments | Out-Null
+
+          @"
+          export const environment = {
+            production: true,
+            electron: true,
+            appVersion: '${{ steps.version.outputs.full_version }}',
+            supabaseUrl: '${{ secrets.SUPABASE_URL }}',
+            supabaseAnonKey: '${{ secrets.SUPABASE_ANON_KEY }}'
+          };
+          "@ | Out-File src/environments/environment.ts -Encoding utf8
+
+      - name: Run Unit Tests
+        working-directory: ./society-management-ui
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build Angular
+        working-directory: ./society-management-ui
+        run: |
+          npm run build:electron
+
+      - name: Package Electron Application
+        working-directory: ./society-management-ui
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          npm run dist:electron
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            society-management-ui/release/*.exe
+            society-management-ui/release/*.blockmap
+            society-management-ui/release/latest*.yml
