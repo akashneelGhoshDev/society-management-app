@@ -1,13 +1,16 @@
 {
   "name": "society-management-ui",
   "version": "2.3.0",
+  "main": "electron/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "start-bn": "ng serve --configuration development-bn",
     "start-hi": "ng serve --configuration development-hi",
     "build": "ng build",
+    "build:electron": "ng build --configuration electron",
     "extract-i18n": "ng extract-i18n",
+    "desktop": "electron .",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -24,6 +27,7 @@
     "@angular/router": "^22.0.1",
     "@angular/service-worker": "^22.0.1",
     "@supabase/supabase-js": "^2.106.2",
+    "electron": "^43.0.0",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.0",
     "tslib": "^2.3.0"

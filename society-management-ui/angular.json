@@ -73,6 +73,12 @@
               "extractLicenses": false,
               "sourceMap": true,
               "localize": ["hi"]
+            },
+            "electron": {
+              "optimization": true,
+              "outputHashing": "all",
+              "localize": false,
+              "baseHref": "./"
             }
           },
           "defaultConfiguration": "production"
