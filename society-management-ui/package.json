@@ -1,6 +1,6 @@
 {
   "name": "society-management-ui",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "main": "electron/main.js",
   "description": "This is a app of managing a residential society",
   "author": {
