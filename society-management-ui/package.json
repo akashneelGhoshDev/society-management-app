@@ -1,7 +1,12 @@
 {
   "name": "society-management-ui",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "main": "electron/main.js",
+  "description": "This is a app of managing a residential society",
+  "author": {
+    "name": "Akashneel Ghosh",
+    "email": "akashneel.ghosh.enterprises@gmail.com"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -11,6 +16,8 @@
     "build:electron": "ng build --configuration electron",
     "extract-i18n": "ng extract-i18n",
     "desktop": "electron .",
+    "dist:electron": "electron-builder",
+    "dist:electron:test": "set CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --dir",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -27,7 +34,6 @@
     "@angular/router": "^22.0.1",
     "@angular/service-worker": "^22.0.1",
     "@supabase/supabase-js": "^2.106.2",
-    "electron": "^43.0.0",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.0",
     "tslib": "^2.3.0"
@@ -43,6 +49,28 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~6.0.3",
+    "electron": "^43.0.0",
+    "electron-builder": "^26.15.3",
     "vitest": "^4.0.8"
+  },
+  "build": {
+    "appId": "com.ubeslabs.societymanagement",
+    "productName": "Society Management",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
