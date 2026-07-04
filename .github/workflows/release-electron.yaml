@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-electron-package
+  cancel-in-progress: true
+
 jobs:
   release:
     name: Build Electron Application
@@ -16,6 +20,9 @@ jobs:
     defaults:
       run:
         shell: pwsh
+
+    environment:
+      name: github-pages #This is required to access secrets in the environment
 
     steps:
       - name: Checkout Source Code
